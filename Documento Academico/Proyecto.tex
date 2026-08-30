@@ -38,7 +38,7 @@
 
 
 \abstract{
-%falta
+ En los últimos años, la investigación en robótica ha impulsado el desarrollo de aplicaciones de inteligencia artificial para robots humanoides. Entre las más comunes está el robot Unitree G1 Edu+29dof, con modelos LVA (Visión-Lenguaje-Acción) y técnicas como el aprendizaje reforzado y el aprendizaje por imitación, lo que facilita el entrenamiento y la comprensión del entorno por parte de los robots. Sin embargo, implementar sistemas de control basados en aprendizaje automático a partir de una simulación o de un modelo entrenado con un dataset presenta desafíos relacionados con la complejidad de las interfaces para desplegar modelos en el robot y con la recopilación de datos de entrenamiento, lo que dificulta la estandarización de los procesos de investigación sobre el robot Unitree G1 Edu+29dof. El siguiente trabajo propone el desarrollo de ROSberto una plataforma orientada a la recolección de datassets, gestión, carga y despliegue de modelos LVA (Visión-Lenguaje-Acción)  con el propósito de simplificar el desarrollo de aplicaciones de aprendizaje robótico sobre el robot Unitree G1 Edu+29dof.
 }
 
 
@@ -119,7 +119,6 @@
 
 
 %pendiente
-
 \clearpage
 
 \section{Justificación}
@@ -131,12 +130,503 @@
 
 \section{Marco Teórico}
 
-%pendiente
+\section{Marco teórico}
+
+\subsection{Robótica humanoide y aprendizaje robótico}
+
+La robótica humanoide constituye un área de investigación orientada al desarrollo de sistemas robóticos capaces de interactuar con entornos diseñados para seres humanos mediante estructuras físicas, capacidades sensoriales y mecanismos de control que reproducen, al menos parcialmente, características de la interacción humana. A diferencia de plataformas robóticas especializadas, los robots humanoides presentan un elevado número de grados de libertad y deben coordinar simultáneamente múltiples articulaciones, sensores y actuadores para ejecutar tareas de locomoción, manipulación e interacción con el entorno. Esta complejidad convierte al desarrollo de comportamientos autónomos en un problema que no depende exclusivamente del diseño mecánico o de los algoritmos de control tradicionales, sino también de la capacidad de adquirir y aprovechar grandes cantidades de información proveniente de la interacción entre el robot y su entorno.
+
+En este contexto surge el concepto de \textit{robot learning} o aprendizaje robótico, entendido como el conjunto de métodos mediante los cuales un robot aprende políticas de comportamiento a partir de datos, demostraciones humanas, interacción con el entorno o simulaciones. Esta perspectiva representa un cambio frente a la programación convencional de robots, en la cual un desarrollador debe especificar explícitamente reglas, trayectorias y comportamientos para cada tarea. En un sistema basado en aprendizaje, el objetivo consiste en obtener una política que establezca una relación entre las observaciones del robot y las acciones que debe ejecutar.
+
+La necesidad de aprendizaje resulta especialmente relevante en robots humanoides debido a la dimensionalidad del espacio de estados y acciones. Una tarea aparentemente sencilla, como recoger un objeto, puede involucrar simultáneamente información visual, posición y velocidad de las articulaciones, orientación del cuerpo, equilibrio, contacto con superficies y coordinación entre ambas manos. En consecuencia, el desarrollo de políticas mediante métodos de aprendizaje permite abordar comportamientos cuya programación explícita puede resultar costosa y poco escalable.
+
+Este proyecto aborda dicha problemática. La ficha de conformación del proyecto identifica como oportunidad la ausencia de procesos estandarizados para el despliegue de robots humanoides en tareas de manipulación y locomoción, y señala que los flujos tradicionales pueden requerir períodos prolongados debido a la recolección manual de datos y a la complejidad del entrenamiento. Por consiguiente, el desafío no se limita al desarrollo de modelos de inteligencia artificial avanzados, sino que también implica optimizar el ciclo completo necesario para transformar datos y demostraciones en comportamientos ejecutables sobre un robot físico.
+
+\subsection{Aprendizaje por imitación}
+
+Uno de los principales paradigmas utilizados para enseñar comportamientos a robots es el aprendizaje por imitación (\textit{Imitation Learning}, IL), mediante el cual una política aprende a reproducir las acciones realizadas por un demostrador. En lugar de definir manualmente una función de recompensa y permitir que el robot explore diferentes comportamientos, el sistema utiliza demostraciones como fuente de información para aproximar la política de un experto.
+
+El aprendizaje por imitación puede formularse de manera simplificada como la búsqueda de una función:
+
+\begin{equation}
+\pi_{\theta}(a_t \mid o_t)
+\end{equation}
+
+donde $o_t$ representa la observación del robot en el instante $t$, $a_t$ corresponde a la acción ejecutada y $\pi_{\theta}$ representa una política parametrizada mediante los parámetros $\theta$. El proceso de entrenamiento busca modificar dichos parámetros para que las acciones producidas por el modelo sean similares a las acciones presentes en las demostraciones.
+
+Este enfoque resulta particularmente relevante para interfaces de entrenamiento robótico porque permite que el conocimiento humano se convierta directamente en datos de entrenamiento. Una persona puede ejecutar una tarea mediante un mecanismo de teleoperación, mientras el sistema registra simultáneamente las observaciones y acciones. Posteriormente, estas demostraciones pueden emplearse para entrenar una política que reproduzca el comportamiento aprendido.
+
+La literatura reciente identifica el aprendizaje a partir de demostraciones como una alternativa para facilitar la adquisición de habilidades robóticas. Correia y Alexandre (2024) presentan una revisión del aprendizaje basado en demostraciones y señalan que este paradigma comprende diferentes etapas relacionadas con la adquisición de demostraciones, representación de datos, aprendizaje y evaluación de las habilidades obtenidas. De forma similar, Li et al. (2024) analizan el \textit{Learning from Demonstration} (LfD) como un mecanismo para que los robots adquieran nuevas habilidades a partir de demostraciones humanas y revisan los diferentes modos de demostración, modelos de aprendizaje y métodos de optimización utilizados en este campo.
+
+En el contexto de este proyecto, el aprendizaje por imitación constituye un componente fundamental, ya que establece una relación directa entre la interfaz propuesta y el proceso de entrenamiento. La interfaz se concibe no solo como un mecanismo para enviar comandos al robot, sino como una herramienta para convertir la interacción humana en datos estructurados que posteriormente pueden emplearse para entrenar políticas.
+
+\subsection{Learning from Demonstration y adquisición de habilidades}
+
+El concepto de \textit{Learning from Demonstration} (LfD) está estrechamente relacionado con el aprendizaje por imitación, aunque enfatiza el proceso completo mediante el cual un robot adquiere una habilidad a partir de la demostración de un usuario. Una arquitectura de LfD puede incluir las etapas de demostración, captura de datos, procesamiento, representación, aprendizaje y ejecución.
+
+Desde la perspectiva de una plataforma de entrenamiento, estas etapas deben estar integradas de manera coherente. El sistema debe permitir que un usuario inicie una sesión de demostración, controle el robot, almacene los datos, seleccione una política y ejecute el modelo resultante sin la necesidad de configurar manualmente cada componente del sistema.
+
+Esta perspectiva es particularmente importante para la democratización del aprendizaje robótico. Una revisión sobre LfD aplicada a ensamblaje industrial señala que este paradigma puede reducir la necesidad de conocimientos especializados de programación robótica y permitir que trabajadores no expertos enseñen comportamientos a los robots mediante demostraciones.
+
+Por tanto, la interfaz de entrenamiento puede considerarse como una capa de abstracción entre el usuario y la infraestructura robótica. El usuario proporciona conocimiento mediante una interacción de alto nivel, mientras que la plataforma se encarga de transformar dicha interacción en información apropiada para los algoritmos de aprendizaje.
+
+\subsection{Teleoperación robótica}
+
+La teleoperación constituye uno de los mecanismos más utilizados para generar demostraciones robóticas. Mediante ella, un operador humano controla directa o indirectamente los movimientos del robot mientras el sistema registra las acciones y observaciones producidas durante la ejecución de una tarea.
+
+En sistemas de manipulación bimanual, la teleoperación puede realizarse mediante robots líderes, dispositivos hápticos, controladores, cámaras, sensores de movimiento o interfaces de realidad virtual. La calidad de la interfaz de teleoperación tiene una influencia directa sobre la calidad de los datos recopilados, debido a que errores, movimientos innecesarios o comportamientos inconsistentes del operador pueden incorporarse posteriormente al conjunto de entrenamiento.
+
+Un ejemplo representativo es ALOHA, presentado por Zhao et al. (2023), donde se desarrolla un sistema de hardware de bajo costo para manipulación bimanual mediante teleoperación. El sistema permite obtener demostraciones directamente sobre el robot y utilizar posteriormente estas demostraciones para aprendizaje por imitación. El trabajo muestra que un sistema de teleoperación adecuadamente diseñado puede reducir las barreras de acceso a tareas de manipulación fina y posibilitar el entrenamiento con cantidades relativamente pequeñas de demostraciones.
+
+Este principio resulta transferible al contexto de un humanoide como el Unitree G1. Sin embargo, la diferencia fundamental reside en la complejidad del \textit{embodiment}. Mientras que un brazo bimanual puede limitarse a controlar determinados actuadores, un humanoide debe considerar simultáneamente brazos, manos, torso, piernas, orientación corporal y, potencialmente, locomoción. Por esta razón, una interfaz de teleoperación para un humanoide debe proporcionar mecanismos para representar y transformar movimientos humanos en configuraciones compatibles con el robot.
+
+\subsection{Teleoperación mediante realidad virtual e interfaces inmersivas}
+
+Las interfaces de realidad virtual constituyen una evolución de los sistemas tradicionales de teleoperación porque permiten representar el estado del robot y capturar los movimientos del operador de manera espacial e intuitiva. En principio, un usuario puede realizar movimientos similares a los que desea que el robot ejecute, mientras un sistema de \textit{motion retargeting} transforma las configuraciones humanas en comandos para el robot.
+
+Esta característica resulta especialmente relevante para humanoides debido a la necesidad de controlar múltiples grados de libertad. Una interfaz convencional basada exclusivamente en botones o comandos textuales puede dificultar la representación de movimientos complejos. En contraste, una interfaz inmersiva puede permitir una interacción más natural con el sistema.
+
+El proyecto Rosberto contempla una estrategia de teleoperación inmersiva mediante dispositivos de realidad virtual, con el objetivo de facilitar el control bimanual y acelerar la adquisición de demostraciones. En este contexto, la realidad virtual se conceptualiza como una capa adicional de adquisición de datos, superando su función tradicional como interfaz de control.
+
+\subsection{Calidad y eficiencia de los datos de entrenamiento}
+
+En aprendizaje robótico, los datos constituyen uno de los componentes fundamentales del sistema. Una política solo puede aprender comportamientos que estén adecuadamente representados en las demostraciones o datos utilizados durante el entrenamiento. En consecuencia, el diseño de la interfaz de adquisición debe considerar no solamente la cantidad de datos obtenidos, sino también su consistencia, diversidad, sincronización y representación.
+
+Una demostración robótica puede representarse mediante una secuencia temporal:
+
+\begin{equation}
+\tau = \left\{(o_1,a_1),(o_2,a_2),\ldots,(o_T,a_T)\right\}
+\end{equation}
+
+donde $o_t$ puede incluir imágenes, información propioceptiva, posición articular u otras observaciones, mientras que $a_t$ representa las acciones correspondientes.
+
+Para una plataforma de aprendizaje, resulta necesario conservar la correspondencia temporal entre estos elementos. Por ejemplo, una imagen capturada en $t$ debe estar asociada correctamente con el estado y la acción producida aproximadamente en el mismo instante. Problemas de sincronización pueden degradar el aprendizaje porque el modelo terminaría intentando aprender relaciones incorrectas entre observaciones y acciones.
+
+Además de la sincronización, la diversidad de las demostraciones es relevante. Una política entrenada únicamente con una configuración fija puede presentar dificultades cuando cambian la posición del objeto, iluminación, orientación de la cámara o comportamiento del usuario. Por esta razón, una interfaz de entrenamiento debe facilitar la generación sistemática de múltiples episodios y condiciones.
+
+\subsection{Estandarización de datasets robóticos}
+
+La heterogeneidad del hardware constituye uno de los principales problemas del aprendizaje robótico. Diferentes robots poseen distintas estructuras cinemáticas, sensores, frecuencias de muestreo, espacios de acción y formatos de datos. Si cada plataforma utiliza una representación incompatible, la reutilización de datasets y modelos resulta limitada.
+
+Open X-Embodiment constituye un ejemplo importante de esta tendencia. El proyecto reúne datos procedentes de 22 robots y 21 instituciones, organizándolos en formatos estandarizados para estudiar políticas capaces de transferir conocimiento entre diferentes plataformas. Los autores reportan 527 habilidades y 160.266 tareas, y muestran que una política entrenada con datos provenientes de múltiples robots puede producir transferencia positiva hacia diferentes plataformas.
+
+Este trabajo introduce un principio fundamental para el proyecto Rosberto: la posibilidad de separar parcialmente los datos de aprendizaje del hardware específico. En lugar de considerar cada robot como un sistema aislado, una arquitectura estandarizada puede representar las experiencias robóticas de modo que puedan ser reutilizadas por diferentes modelos o \textit{embodiments}.
+
+\subsection{LeRobot como paradigma de estandarización}
+
+Dentro de las herramientas contemporáneas para \textit{robot learning}, LeRobot constituye una referencia particularmente relevante para el proyecto. La documentación de Hugging Face describe LeRobot como una interfaz orientada a proporcionar herramientas para controlar robots reales, registrar y compartir datasets y entrenar políticas de aprendizaje robótico. Su flujo conceptual se organiza como:
+
+\begin{equation}
+\text{Teleoperate}
+\rightarrow
+\text{Record}
+\rightarrow
+\text{Train}
+\rightarrow
+\text{Deploy}
+\end{equation}
+
+Este flujo conceptual coincide estrechamente con el ciclo que se busca abstraer en Rosberto.
+
+LeRobot utiliza una interfaz común para los robots compatibles, permitiendo que las políticas y scripts de registro trabajen sobre una abstracción de robot en lugar de depender directamente de cada implementación particular.
+
+Asimismo, su formato \textit{LeRobotDataset} busca estandarizar datos robóticos multimodales, incluyendo señales sensorimotoras, vídeo de múltiples cámaras y metadatos para indexación y visualización.
+
+Esta arquitectura resulta especialmente significativa para Rosberto porque la ficha del proyecto plantea explícitamente utilizar el formato LeRobot como mecanismo de estandarización de los datasets generados mediante teleoperación.
+
+Desde una perspectiva conceptual, puede afirmarse que un sistema como LeRobot intenta abstraer tres niveles:
+
+\begin{equation}
+\text{Hardware}
+\rightarrow
+\text{Representación de datos}
+\rightarrow
+\text{Política}
+\end{equation}
+
+La plataforma propuesta tiene como objetivo extender esta abstracción al contexto específico del humanoide Unitree G1, incorporando mecanismos adicionales de gestión y despliegue.
+
+\subsection{Políticas de aprendizaje robótico}
+
+Una política robótica es una función que transforma las observaciones del sistema en acciones. Matemáticamente puede expresarse como:
+
+\begin{equation}
+a_t = \pi_{\theta}(o_t)
+\end{equation}
+
+o, en el caso de políticas que incorporan secuencias temporales:
+
+\begin{equation}
+A_{t:t+k} = \pi_{\theta}(O_{t-h:t})
+\end{equation}
+
+donde $A_{t:t+k}$ representa un conjunto de acciones futuras.
+
+La elección de la política determina en gran medida las características del entrenamiento y del despliegue. Entre las aproximaciones recientes se encuentran políticas basadas en redes convolucionales, \textit{Transformers}, modelos de difusión y modelos fundacionales multimodales.
+
+En este contexto, Action Chunking with Transformers (ACT) representa una contribución importante. Zhao et al. (2023) proponen generar secuencias de acciones en lugar de predecir únicamente una acción individual. Esta estrategia busca reducir la acumulación de errores durante la ejecución y permite representar comportamientos temporales más complejos. En sus experimentos, el sistema ALOHA consiguió realizar varias tareas de manipulación con tasas de éxito de 80--90\,\% utilizando aproximadamente diez minutos de demostraciones por tarea.
+
+En una plataforma como Rosberto, esto implica que la interfaz debe ser independiente de una única política. El sistema debe permitir la selección de diferentes modelos según las características de la tarea y del hardware.
+
+\subsection{Diffusion Policies}
+
+Otra línea importante corresponde a las políticas basadas en modelos de difusión. Chi et al. (2024) presentan \textit{Diffusion Policy}, que modela una política visuomotora como un proceso de difusión condicionado. El enfoque fue evaluado en múltiples tareas de manipulación y se diseñó específicamente para manejar distribuciones multimodales de acciones, espacios de acción de alta dimensionalidad y problemas de estabilidad durante el entrenamiento.
+
+La relevancia de estas políticas para el proyecto radica en que demuestran cómo la interfaz de entrenamiento puede estar desacoplada del algoritmo utilizado internamente. El usuario puede proporcionar demostraciones de manera consistente, mientras que la plataforma puede modificar la arquitectura empleada para el aprendizaje a partir de dichas demostraciones.
+
+En consecuencia, una interfaz de entrenamiento generalizable debería abstraer:
+
+\begin{equation}
+\text{Usuario} \rightarrow \text{Datos}
+\end{equation}
+
+de:
+
+\begin{equation}
+\text{Datos} \rightarrow \text{Modelo}
+\end{equation}
+
+Esta separación permite que una misma infraestructura de adquisición pueda utilizarse posteriormente con ACT, Diffusion Policy, VLA u otras arquitecturas.
+
+\subsection{Transformers para robótica}
+
+La utilización de \textit{Transformers} en robótica responde a la necesidad de modelar dependencias temporales y relaciones complejas entre observaciones y acciones. Mientras que algunos enfoques tradicionales procesan cada instante de forma relativamente independiente, los \textit{Transformers} permiten analizar secuencias y construir representaciones contextuales.
+
+ACT es un ejemplo de esta aplicación en aprendizaje por imitación, mientras que RT-2 demuestra una extensión del paradigma hacia modelos que combinan visión, lenguaje y acción.
+
+La importancia de esta evolución para las interfaces de entrenamiento consiste en que los requisitos de datos se vuelven progresivamente más complejos. Una política moderna puede requerir simultáneamente:
+
+\begin{equation}
+\text{Imagen} + \text{Lenguaje} + \text{Estado del robot}
+\end{equation}
+
+y producir:
+
+\begin{equation}
+\text{Acciones robóticas}
+\end{equation}
+
+Por esta razón, una plataforma de entrenamiento debe ser capaz de almacenar y gestionar información multimodal.
+
+\subsection{Vision-Language-Action Models}
+
+Los modelos \textit{Vision-Language-Action} (VLA) representan una evolución hacia sistemas capaces de conectar información visual y lenguaje natural con acciones robóticas. RT-2 constituye uno de los trabajos fundamentales en esta dirección. El modelo utiliza conocimiento procedente de modelos visión-lenguaje preentrenados y lo adapta al control robótico, representando las acciones dentro del mismo marco de predicción utilizado para otros tokens. Los experimentos muestran mejoras en generalización a objetos y situaciones no observadas durante el entrenamiento específico del robot.
+
+Conceptualmente, un VLA puede representarse como:
+
+\begin{equation}
+\pi_{\theta}(I_t,L_t,S_t) \rightarrow A_t
+\end{equation}
+
+donde $I_t$ corresponde a la información visual, $L_t$ a la instrucción lingüística, $S_t$ al estado del robot y $A_t$ a la acción.
+
+Este paradigma modifica significativamente el concepto tradicional de entrenamiento robótico. En lugar de entrenar una política completamente nueva para cada tarea, el objetivo puede consistir en adaptar o ajustar un modelo previamente entrenado.
+
+Esta transición es relevante para Rosberto, dado que la plataforma propuesta contempla la carga y el despliegue de modelos de acción avanzados como ACT, $?\pi_0?$ y GR00T.
+
+\subsection{OpenVLA y modelos abiertos}
+
+OpenVLA representa otra etapa en la evolución de los VLA. Kim et al. (2024) presentan un modelo abierto de 7 mil millones de parámetros entrenado utilizando una colección diversa de aproximadamente 970.000 demostraciones robóticas. Los autores plantean que los modelos preentrenados pueden permitir adaptar políticas existentes a nuevas tareas mediante \textit{fine-tuning}, en lugar de entrenar cada comportamiento desde cero.
+
+Esta característica tiene consecuencias importantes para la accesibilidad de la robótica. Si el conocimiento aprendido previamente puede reutilizarse, la interfaz deja de estar centrada exclusivamente en ``entrenar un modelo'' y pasa a gestionar un ciclo más amplio:
+
+\begin{equation}
+\text{Seleccionar modelo}
+\rightarrow
+\text{Seleccionar dataset}
+\rightarrow
+\text{Adaptar}
+\rightarrow
+\text{Evaluar}
+\rightarrow
+\text{Desplegar}
+\end{equation}
+
+Por lo tanto, una plataforma de investigación debe ir más allá de ofrecer opciones básicas para iniciar el entrenamiento y permitir la gestión integral de modelos, datasets, configuraciones,  extit{checkpoints} y despliegues.
+
+\subsection{Modelos fundacionales para robótica humanoide}
+
+Los modelos fundacionales aplicados a robótica buscan ampliar todavía más el concepto de política generalista. En lugar de aprender exclusivamente una tarea sobre un robot determinado, estos modelos buscan aprovechar grandes cantidades de información procedente de diferentes robots, tareas y modalidades.
+
+El concepto de \textit{embodiment} resulta central en este contexto. Dos robots pueden recibir una instrucción idéntica pero requerir acciones diferentes debido a sus distintas arquitecturas físicas. Por ello, una política generalista debe aprender una representación suficientemente abstracta para transferir conocimiento entre \textit{embodiments}.
+
+Open X-Embodiment constituye un ejemplo de este enfoque al utilizar datos provenientes de múltiples plataformas para entrenar políticas generalistas.
+
+En el ámbito humanoide, NVIDIA presenta GR00T como una familia de modelos orientados a robots humanoides. La arquitectura utiliza como entradas secuencias de vídeo, comandos de lenguaje y estado propioceptivo, y produce secuencias de movimientos articulares. La documentación actual también señala la incorporación del Unitree G1 dentro de los \textit{embodiments} considerados en versiones recientes de los modelos.
+
+Esta tendencia resalta la importancia de contar con una infraestructura que permita cargar diferentes modelos sobre un mismo robot. De este modo, el robot físico permanece constante mientras se modifican las políticas empleadas.
+
+\subsection{Simulación y aprendizaje Sim-to-Real}
+
+El entrenamiento directo sobre robots físicos presenta limitaciones relacionadas con seguridad, desgaste del hardware, tiempo de experimentación y costo de interacción. Por ello, la simulación constituye una herramienta fundamental para desarrollar y evaluar políticas antes de transferirlas al mundo real.
+
+El paradigma \textit{Sim-to-Real} busca entrenar o preentrenar una política en simulación y posteriormente transferirla al robot físico. Sin embargo, esta transferencia presenta dificultades debido a la diferencia entre las propiedades simuladas y las condiciones reales.
+
+Isaac Lab constituye un ejemplo contemporáneo de infraestructura orientada a este problema. El framework integra simulación física acelerada por GPU, renderizado, sensores, modelos de actuadores, recopilación de datos y herramientas de \textit{domain randomization}, además de soportar aprendizaje por refuerzo e imitación.
+
+Desde el punto de vista de Rosberto, la simulación representa una posible extensión del ciclo de entrenamiento:
+
+\begin{equation}
+\text{Simulación}
+\rightarrow
+\text{Entrenamiento}
+\rightarrow
+\text{Validación}
+\rightarrow
+\text{Robot real}
+\end{equation}
+
+La interfaz puede abstraer parte de las diferencias entre el entorno simulado y el físico, lo que permite a los investigadores emplear un flujo de trabajo unificado.
+
+\subsection{Gestión del ciclo de vida de modelos}
+
+A medida que los sistemas robóticos incorporan modelos de mayor tamaño y complejidad, el entrenamiento deja de ser una operación aislada. Un experimento puede producir múltiples versiones de datasets, configuraciones, \textit{checkpoints} y políticas.
+
+Por ello, una plataforma de investigación robótica requiere mecanismos de gestión del ciclo de vida del modelo. Conceptualmente, este ciclo puede expresarse como:
+
+\begin{equation}
+\text{Dataset}
+\rightarrow
+\text{Entrenamiento}
+\rightarrow
+\text{Checkpoint}
+\rightarrow
+\text{Evaluación}
+\rightarrow
+\text{Despliegue}
+\rightarrow
+\text{Retroalimentación}
+\rightarrow
+\text{Nuevo Dataset}
+\end{equation}
+
+Esta estructura convierte el aprendizaje robótico en un proceso iterativo. El robot ejecuta una política, las nuevas experiencias pueden convertirse en datos adicionales y estos datos pueden emplearse para mejorar la siguiente versión de la política.
+
+La ficha del prLa ficha del proyecto identifica la necesidad de una plataforma que gestione el ciclo de vida de modelos avanzados y facilite la acumulación de conocimiento colectivo por parte de estudiantes e investigadores.nterfaces de alto nivel para robótica}
+
+La complejidad de los frameworks actuales constituye una barrera importante para usuarios que no poseen experiencia profunda en programación robótica, middleware, CUDA, ROS, controladores o entrenamiento de redes neuronales.
+
+Una interfaz de alto nivel busca encapsular parte de esta complejidad. En lugar de exigir al usuario configurar individualmente cada componente, puede ofrecer operaciones conceptuales como:
+
+\begin{itemize}
+    \item Seleccionar robot.
+    \item Seleccionar tarea.
+    \item Recolectar demostraciones.
+    \item Entrenar modelo.
+    \item Evaluar.
+    \item Desplegar.
+\end{itemize}
+
+LeRobot constituye un ejemplo actual de esta filosofía. Su documentación plantea explícitamente el objetivo de reducir la barrera de entrada a la robótica mediante una interfaz común, datasets compartidos, políticas preentrenadas y herramientas para registrar, entrenar y desplegar modelos.
+
+Además, LeLab proporciona una interfaz gráfica que permite configurar robots, realizar teleoperación, recolectar datasets, entrenar políticas y ejecutar modelos desde una misma aplicación, reduciendo la necesidad de memorizar comandos de línea de comandos.
+
+Aunque actualmente LeLab presenta compatibilidad limitada a determinadas plataformas, el concepto arquitectónico es relevante para Rosberto, dado que la interfaz puede funcionar como una capa de orquestación sobre un conjunto de herramientas de aprendizaje robótico.
+
+\subsection{Abstracción de hardware}
+
+Una característica fundamental para una plataforma de este tipo es la abstracción del hardware. En un sistema tradicional, el algoritmo de aprendizaje puede depender directamente de nombres de articulaciones, puertos, controladores, sensores y protocolos específicos.
+
+Una arquitectura abstracta puede definir una interfaz común:
+
+\begin{equation}
+\mathrm{RobotInterface}
+=
+\{
+\mathrm{connect},
+\mathrm{observe},
+\mathrm{act},
+\mathrm{disconnect}
+\}
+\end{equation}
+
+De esta manera, el modelo interactúa con una representación lógica del robot en lugar de depender directamente de su implementación física.
+
+LeRobot utiliza precisamente una interfaz abstracta para representar robots compatibles, donde cada robot implementa operaciones comunes como conexión, lectura de observaciones, envío de acciones y desconexión.
+
+Para Rosberto, esta idea es especialmente relevante, ya que permite que la plataforma no quede completamente acoplada a un único controlador de bajo nivel. El Unitree G1 puede constituir el \textit{embodiment} inicial, mientras que la arquitectura puede mantener una separación entre:
+
+\begin{equation}
+\text{Capa de aplicación}
+\rightarrow
+\text{Capa de abstracción del robot}
+\rightarrow
+\text{SDK / ROS / Controladores}
+\rightarrow
+\text{Unitree G1}
+\end{equation}
+
+\subsection{Middleware y orquestación}
+
+El concepto de middleware resulta fundamental para comprender la propuesta de Rosberto. Un middleware puede actuar como una capa intermedia que conecta diferentes componentes tecnológicos sin exigir al usuario interactuar directamente con cada uno de ellos.
+
+En este proyecto, los componentes potenciales incluyen:
+
+\begin{equation}
+\text{Usuario}
+\rightarrow
+\text{Interfaz Rosberto}
+\end{equation}
+
+\begin{equation}
+\downarrow
+\end{equation}
+
+\begin{equation}
+\begin{cases}
+\text{Teleoperación}\\
+\text{Dataset}\\
+\text{Entrenamiento}\\
+\text{Modelos}\\
+\text{Evaluación}\\
+\text{Deployment}
+\end{cases}
+\end{equation}
+
+\begin{equation}
+\downarrow
+\end{equation}
+
+\begin{equation}
+\text{ROS / SDK / APIs}
+\rightarrow
+\text{Unitree G1}
+\end{equation}
+
+Esta arquitectura posibilita la separación entre la experiencia del usuario y la implementación técnica.
+
+La relevancia de este enfoque aumenta cuando se consideran modelos heterogéneos. ACT, Diffusion Policy, VLA y modelos fundacionales pueden tener diferentes requisitos de entrada, formatos de \textit{checkpoint}, frecuencias de inferencia y representaciones de acciones. Un middleware puede encargarse de convertir las representaciones entre componentes.
+
+\subsection{Reproducibilidad en investigación robótica}
+
+La reproducibilidad constituye otro fundamento conceptual para el proyecto. En un entorno universitario, diferentes estudiantes deberían poder repetir experimentos utilizando el mismo dataset, modelo, configuración y hardware.
+
+La estandarización de datasets contribuye a este objetivo, pero también es necesario conservar información relacionada con la configuración experimental. Un experimento debería poder asociarse conceptualmente con:
+
+\begin{equation}
+E = (D,M,C,H,P)
+\end{equation}
+
+donde $D$ representa el dataset, $M$ el modelo, $C$ la configuración, $H$ el hardware y $P$ los parámetros de entrenamiento.
+
+Una plataforma que gestione estos elementos puede facilitar la repetición y comparación de experimentos.
+
+Esta necesidad se vincula directamente con la motivación declarada en el proyecto, que busca estandarizar la investigación universitaria y permitir que el conocimiento generado en diferentes experimentos sea reutilizable por otros investigadores.
+
+\subsection{Democratización de la investigación en robótica}
+
+La democratización de la robótica puede entenderse como la reducción de las barreras económicas, técnicas y de conocimiento necesarias para experimentar con sistemas robóticos avanzados.
+
+La ficha del proyecto identifica tres grupos beneficiarios: estudiantes de pregrado, investigadores y profesores, y universidades. En particular, plantea que una plataforma estandarizada podría reducir la necesidad de que cada estudiante adquiera conocimientos profundos sobre drivers de bajo nivel y permitir un mejor aprovechamiento de hardware costoso mediante acceso remoto y seguro.
+
+La democratización no implica la eliminación de la complejidad técnica del sistema, sino su traslado desde el usuario final hacia componentes de infraestructura reutilizables.
+
+Así, el objetivo de una interfaz de alto nivel no es reemplazar ROS, SDK, frameworks de aprendizaje o controladores, sino orquestarlos detrás de una abstracción orientada a tareas.
+
+\subsection{Unitree G1 Education Edition como plataforma de investigación}
+
+El Unitree G1 constituye el \textit{embodiment} físico sobre el cual se plantea validar la plataforma Rosberto. En este contexto, el robot no debe considerarse únicamente como un actuador, sino como un sistema experimental que integra percepción, locomoción, manipulación, control y procesamiento.
+
+El desafío de entrenar modelos sobre un humanoide es mayor que en sistemas de manipulación de menor dimensionalidad debido a la necesidad de coordinar múltiples subsistemas. Las tareas pueden involucrar simultáneamente manipulación bimanual, equilibrio, locomoción y percepción.
+
+La ficha del proyecto delimita específicamente el Unitree G1 Edu como plataforma objetivo y propone desarrollar una infraestructura para estandarizar la investigación sobre dicho robot.
+
+Esta delimitación es relevante porque permite transformar una problemática general de la robótica humanoide en un problema concreto de ingeniería: desarrollar una interfaz capaz de abstraer las operaciones necesarias para entrenar y desplegar modelos de inteligencia artificial sobre una plataforma humanoide específica.
+
+\subsection{Integración de los conceptos en el ciclo de aprendizaje robótico}
+
+Los conceptos anteriores pueden integrarse en un único ciclo:
+
+\begin{equation}
+\boxed{
+\text{Demostración humana}
+\rightarrow
+\text{Teleoperación}
+\rightarrow
+\text{Dataset}
+\rightarrow
+\text{Entrenamiento}
+\rightarrow
+\text{Política}
+\rightarrow
+\text{Evaluación}
+\rightarrow
+\text{Despliegue}
+}
+\end{equation}
+
+La teleoperación permite generar las demostraciones. Los datasets proporcionan una representación estructurada de las experiencias. Los algoritmos de aprendizaje transforman estos datos en políticas. Las políticas son evaluadas mediante simulación o interacción física y finalmente desplegadas sobre el robot.
+
+Después del despliegue, las nuevas experiencias pueden volver al dataset:
+
+\begin{equation}
+\text{Robot}
+\rightarrow
+\text{Nueva experiencia}
+\rightarrow
+\text{Dataset}
+\rightarrow
+\text{Reentrenamiento}
+\end{equation}
+
+Por lo tanto, el aprendizaje robótico puede entenderse como un ciclo continuo y no como un proceso lineal.
+
+En este contexto, una interfaz como Rosberto puede desempeñar el papel de conectar las diferentes etapas del ciclo. La propuesta del proyecto contempla la integración de la gestión de modelos VLA, la estandarización de datasets y la teleoperación inmersiva.
+
+\subsection{Relación conceptual con Rosberto}
+
+Con base en los fundamentos expuestos, Rosberto puede conceptualizarse como una plataforma middleware de alto nivel cuyo objetivo es reducir la complejidad operacional del ciclo de aprendizaje robótico sobre el Unitree G1.
+
+Su arquitectura conceptual puede representarse mediante cinco capas:
+
+\begin{enumerate}
+    \item \textbf{Capa de interacción.} Proporciona al investigador una interfaz para configurar experimentos, seleccionar tareas y controlar procesos.
+    
+    \item \textbf{Capa de adquisición.} Permite realizar teleoperación y registrar demostraciones multimodales.
+    
+    \item \textbf{Capa de datos.} Estandariza, almacena y organiza las experiencias obtenidas durante las sesiones de entrenamiento.
+    
+    \item \textbf{Capa de aprendizaje.} Gestiona diferentes políticas y modelos, incluyendo aprendizaje por imitación, políticas generativas y modelos VLA.
+    
+    \item \textbf{Capa de despliegue.} Transforma el modelo entrenado en una política ejecutable sobre el Unitree G1.
+\end{enumerate}
+
+La arquitectura puede resumirse como:
+
+\begin{equation}
+\boxed{
+\text{Usuario}
+\rightarrow
+\text{Interfaz}
+\rightarrow
+\text{Datos}
+\rightarrow
+\text{Modelo}
+\rightarrow
+\text{Evaluación}
+\rightarrow
+\text{Unitree G1}
+}
+\end{equation}
+
+La contribución principal de la plataforma no radica en el desarrollo de un nuevo algoritmo de aprendizaje, sino en la integración y abstracción de tecnologías existentes para reducir la complejidad del ciclo de investigación.
+
+\subsection{Síntesis del marco teórico}
+
+La revisión conceptual permite establecer que el aprendizaje de robots humanoides se encuentra evolucionando desde sistemas altamente específicos y dependientes de programación manual hacia arquitecturas basadas en demostraciones, datasets compartidos, políticas generalistas y modelos fundacionales. El aprendizaje por imitación permite transformar demostraciones humanas en políticas, mientras que la teleoperación proporciona un mecanismo práctico para producir dichas demostraciones. A su vez, la estandarización de datasets permite compartir experiencias entre diferentes experimentos y potencialmente entre diferentes \textit{embodiments}.
+
+Los trabajos de ALOHA, Open X-Embodiment, Diffusion Policy, RT-2 y OpenVLA muestran diferentes etapas de esta evolución: desde la adquisición eficiente de demostraciones y el aprendizaje de habilidades específicas hasta la utilización de grandes datasets y modelos multimodales para desarrollar políticas más generales.
+
+Paralelamente, plataformas como LeRobot e Isaac Lab muestran que la infraestructura utilizada para desarrollar modelos se está convirtiendo en un componente fundamental de la investigación. LeRobot integra control de hardware, adquisición de datos, datasets, entrenamiento y despliegue en un flujo común, mientras que Isaac Lab proporciona una infraestructura orientada al aprendizaje robótico a gran escala en simulación.
+
+A partir de esta convergencia se identifica el fundamento conceptual de Rosberto: una plataforma orientada a reducir la distancia existente entre el investigador y la infraestructura necesaria para entrenar y desplegar modelos sobre un robot humanoide. En lugar de reemplazar los frameworks y algoritmos existentes, la propuesta busca integrarlos bajo una interfaz común, facilitando la adquisición de demostraciones, la gestión de datasets, el entrenamiento y la implementación de modelos sobre el Unitree G1 Education Edition.
+
+De este modo, el marco teórico establece cuatro conceptos centrales que orientarán el estado del arte: aprendizaje robótico, adquisición de datos mediante demostraciones, modelos generalistas de visión-lenguaje-acción y plataformas de abstracción y despliegue. La relación entre estos conceptos permite formular el problema de investigación desde una perspectiva de infraestructura, enfocándose no solo en determinar qué modelo controla mejor un humanoide, sino en establecer cómo facilitar y estandarizar el proceso mediante el cual estudiantes e investigadores recolectan datos, entrenan modelos y los despliegan sobre un robot físico.
+
 
 \clearpage
 
 \section{Análisis de requerimientos}
-
 %pendiente
 \clearpage
 

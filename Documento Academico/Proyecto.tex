@@ -164,7 +164,7 @@ el robot humanoide Unitree G1 Edu para estandarizar el proceso de investigación
     \item Parametrizar todos los actuadores del robot humanoide Unitree G1 Edu en la plataforma, permitiendo que, al seleccionar un modelo visión-acción para cargar por red, se identifique automáticamente cada salida del robot.
     \item Cargar y ejecutar modelos de visión y acción en el robot humanoide Unitree G1 Edu.
     \item Realizar una conexión por medio de internet que permita cargar y ejecutar un modelo en el robot humanoide Unitree G1 Edu.
-    \item Reducir el tiempo de parametrización de los actuadores del robot humanoide Unitree G1 Edu y la carga de modelos en un 20\%. 
+    \item Reducir el tiempo de parametrización de los actuadores del robot humanoide Unitree G1 Edu y la carga de modelos en un 20\% de lo que se proponen en platafomas especializadas \cite{theconstruct2026humanoid}. 
 \end{itemize}
 
 \clearpage
@@ -646,18 +646,11 @@ La arquitectura puede resumirse como:
 
 La contribución principal de la plataforma no radica en el desarrollo de un nuevo algoritmo de aprendizaje, sino en la integración y abstracción de tecnologías existentes para reducir la complejidad del ciclo de investigación.
 
-\subsection{Síntesis del marco teórico}
-
-La revisión conceptual permite establecer que el aprendizaje de robots humanoides se encuentra evolucionando desde sistemas altamente específicos y dependientes de programación manual hacia arquitecturas basadas en demostraciones, datasets compartidos, políticas generalistas y modelos fundacionales. El aprendizaje por imitación permite transformar demostraciones humanas en políticas, mientras que la teleoperación proporciona un mecanismo práctico para producir dichas demostraciones. A su vez, la estandarización de datasets permite compartir experiencias entre diferentes experimentos y potencialmente entre diferentes \textit{embodiments}.
-
 Los trabajos de ALOHA, Open X-Embodiment, Diffusion Policy, RT-2 y OpenVLA muestran diferentes etapas de esta evolución: desde la adquisición eficiente de demostraciones y el aprendizaje de habilidades específicas hasta la utilización de grandes datasets y modelos multimodales para desarrollar políticas más generales.
 
 Paralelamente, plataformas como LeRobot e Isaac Lab muestran que la infraestructura utilizada para desarrollar modelos se está convirtiendo en un componente fundamental de la investigación. LeRobot integra control de hardware, adquisición de datos, datasets, entrenamiento y despliegue en un flujo común, mientras que Isaac Lab proporciona una infraestructura orientada al aprendizaje robótico a gran escala en simulación.\cite{cadene2026lerobotopensourcelibraryendtoend}
 
 A partir de esta convergencia se identifica el fundamento conceptual de Rosberto: una plataforma orientada a reducir la distancia existente entre el investigador y la infraestructura necesaria para entrenar y desplegar modelos sobre un robot humanoide. En lugar de reemplazar los frameworks y algoritmos existentes, la propuesta busca integrarlos bajo una interfaz común, facilitando la adquisición de demostraciones, la gestión de datasets, el entrenamiento y la implementación de modelos sobre el Unitree G1 Education Edition.
-
-De este modo, el marco teórico establece cuatro conceptos centrales que orientarán el estado del arte: aprendizaje robótico, adquisición de datos mediante demostraciones, modelos generalistas de visión-lenguaje-acción y plataformas de abstracción y despliegue. La relación entre estos conceptos permite formular el problema de investigación desde una perspectiva de infraestructura, enfocándose no solo en determinar qué modelo controla mejor un humanoide, sino en establecer cómo facilitar y estandarizar el proceso mediante el cual estudiantes e investigadores recolectan datos, entrenan modelos y los despliegan sobre un robot físico.
-
 
 \clearpage
 

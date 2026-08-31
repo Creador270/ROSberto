@@ -25,7 +25,7 @@
 
 \renewcommand{\arraystretch}{1.3}
 
-\title{ROSberto. Plataforma de Gestión de Modelos para el Robot Humanoide Unitree G1 Edu}
+\title{Rosberto. Plataforma para la gestión, carga y despliegue de Modelos de Visión y Acción en el Unitree G1 Edu para estandarizar el proceso de investigación universitaria}
 \shorttitle{ROSberto}
 
 \author{Alejandro Roa Aparicio \\ Alisson Dayana Navarro Rodriguez \\ Juan Pablo Quiroga Lugo}
@@ -33,7 +33,7 @@
 
 \course{Proyecto de grado}
 \professor{Zoraima Oñates Flórez}
-\duedate{30 de noviembre de 2026}
+\duedate{30 de agosto de 2026}
 
 
 
@@ -91,44 +91,83 @@
 \section{Introducción}
 
 
-\begin{quote}
+%\begin{quote}
 %Epilogo""
--\cite{}-
-\end{quote}
+%-\cite{}-
+%\end{quote}
 
 %pendiente
+
+
+%\section{Problema}
+Actualmente, el despliegue de robots humanoides para tareas de manipulación y locomoción
+enfrenta un cuello de botella crítico: la falta de procesos estandarizados. Mientras que pipelines
+modernos basados en modelos fundacionales pueden reducir el ciclo de despliegue a 30 minutos,
+los flujos tradicionales suelen consumir varios días o semanas por cada nueva tarea debido a la
+recolección manual de datos y entrenamiento complejo.
+Para un estudiante de pregrado, esta alta curva de aprendizaje y la falta de infraestructura para
+centralizar el conocimiento impiden realizar investigación de vanguardia. Además, el elevado costo
+del hardware (aprox. \$16,000 USD) centraliza el acceso a la tecnología. Existe la oportunidad de
+crear una plataforma que democratice este acceso mediante laboratorios teleoperados y
+estandarice la gestión de modelos de Visión y Acción (VLA).
+
+%pendiente
+%\clearpage
+
+%\section{Justificación}
+
+Usuarios o beneficiario
+Estudiantes de Pregrado: Que podrán realizar proyectos de investigación aplicada sin
+meses de capacitación previa en drivers de bajo nivel.
+Investigadores y Profesores: Quienes requieren una herramienta para gestionar el ciclo de
+vida de modelos avanzados y acumular conocimiento colectivo.
+Universidades: Que podrán optimizar el uso de hardware costoso mediante un sistema de
+acceso remoto y seguro para múltiples nichos de estudiantes.
+Solución propuesta
+Rosberto es una plataforma middleware para estandarizar la investigación con el robot Unitree G1
+Edu. La solución integra los siguientes pilares técnicos:
+Gestión de Modelos VLA: Facilita la carga y despliegue de modelos de acción avanzados
+(como ACT, \π\0, o GR00T) y modelos base para percepción como FoundationPose (pose 6- DoF zero-shot) y SAM 3D (reconstrucción).
+Estandarización de Datasets: Implementa el formato de datos LeRobot, permitiendo que
+cada sesión de teleoperación contribuya a un repositorio centralizado de aprendizaje por
+imitación (Imitation Learning).
+Teleoperación Inmersiva: Utiliza aplicaciones de realidad virtual (Meta Quest) para
+permitir un control bimanual intuitivo, acelerando la recolección de datos de alta calidad de
+minutos a segundos.
+4. Experiencia o Motivación del Grupo
+Nuestra motivación principal es la democratización de la IA Física. Observamos que la falta de
+estándares genera una brecha educativa donde solo unos pocos pueden investigar en robótica
+humanoide. Inspirados en arquitecturas abiertas como phosphobot y los avances de NVIDIA
+Isaac Lab, buscamos reducir el tiempo de desarrollo de "meses a minutos". Queremos que
+Rosberto sea la herramienta que permita a estudiantes de pregrado publicar investigación de
+impacto, integrando hardware real con modelos de inteligencia artificial de última generación de
+forma segura y colaborativa
+%pendiente
+
+%\clearpage
 
 \clearpage
 
 
 \section{Objetivos}
 
+
+
 \subsection{Objetivo General}
 
-%pendiente
+Desarrollar una plataforma para la gestión, carga y despliegue de Modelos de Visión y Acción en
+el robot humanoide Unitree G1 Edu para estandarizar el proceso de investigación universitaria
+
 \subsection{Objetivos Específicos}
 \begin{itemize}
-    \item 
-    \item  
-    \item
+    \item Ordenar y listar modelos vision accion para cargar por red al robot humanoide Unitree G1 Edu.
+    \item Parametrizar todos los actuadores del robot humanoide Unitree G1 Edu en la plataforma, permitiendo que, al seleccionar un modelo visión-acción para cargar por red, se identifique automáticamente cada salida del robot.
+    \item Cargar y ejecutar modelos de visión y acción en el robot humanoide Unitree G1 Edu.
+    \item Realizar una conexión por medio de internet que permita cargar y ejecutar un modelo en el robot humanoide Unitree G1 Edu.
+    \item Reducir el tiempo de parametrización de los actuadores del robot humanoide Unitree G1 Edu y la carga de modelos en un 20\%. 
 \end{itemize}
 
 \clearpage
-
-\section{Problema}
-
-
-%pendiente
-\clearpage
-
-\section{Justificación}
-
-
-%pendiente
-
-\clearpage
-
-\section{Marco Teórico}
 
 \section{Marco teórico}
 
@@ -626,45 +665,45 @@ De este modo, el marco teórico establece cuatro conceptos centrales que orienta
 
 \clearpage
 
-\section{Análisis de requerimientos}
+%\section{Análisis de requerimientos}
 %pendiente
-\clearpage
+%\clearpage
 
-\section{Restricciones}
+%\section{Restricciones}
 
-\subsection{Factores políticos}
-
-
-\subsection{Factores económicos}
+%\subsection{Factores políticos}
 
 
-\subsection{Factores sociales}
+%\subsection{Factores económicos}
+
+
+%\subsection{Factores sociales}
 
 
 
-\subsection{Factores tecnológicos}
+%\subsection{Factores tecnológicos}
 
 
-\subsection{Factores ambientales}
+%\subsection{Factores ambientales}
 
 
-\subsection{Factores legales}
+%\subsection{Factores legales}
 
 
-\subsection{Conclusión}
+%\subsection{Conclusión}
 
 
-\clearpage
+%\clearpage
 
 \section{Metodología}
 
 
 \clearpage
 
-\section{Costos}
+%\section{Costos}
 
 
-\clearpage
+%\clearpage
 
 \section{Resultados}
 
